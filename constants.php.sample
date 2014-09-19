@@ -1,0 +1,5 @@
+<?php 
+define("CLIENT_SECRET", "FILL_ME");
+define("CLIENT_ID", "FILL_ME");
+define("REDIRECT_URL", "FILL_ME");
+define("HOST", "FILL_ME");
