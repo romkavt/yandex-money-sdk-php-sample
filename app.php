@@ -93,7 +93,7 @@ $app->post("/obtain-token/", function () use ($app) {
     $scope = $request->request->get('scope');
     $url = API::buildObtainTokenUrl(
         CLIENT_ID,
-        "http://localhost:8000" . REDIRECT_URL,
+        HOST . REDIRECT_URL,
         CLIENT_SECRET,
         split(" ", $scope)
     );
@@ -105,7 +105,7 @@ $app->get(REDIRECT_URL, function () use($app) {
     // public static function getAccessToken($client_id, $code, $redirect_uri) {
     $code = $app['request']->query->get('code');
     $result = API::getAccessToken(CLIENT_ID, $code,
-        "http://localhost:8000" . REDIRECT_URL, CLIENT_SECRET);
+        HOST . REDIRECT_URL, CLIENT_SECRET);
     var_dump($result);
     return $app->redirect(sprintf("/?token=%s", $result->access_token));
 });
