@@ -1,0 +1,51 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Yandex money php sample page</title>
+    <link href="http://yandex.st/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+        body {
+          padding-top: 20px;
+          padding-bottom: 20px;
+        }
+
+        .container {
+          max-width: 730px;
+        }
+
+        .input {
+          width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h2>Yandex money php sample page</h2>
+    {% if token %}
+        <h2>API Methods</h2>
+        <h3>Information about a user's account</h3>
+        <ul>
+            <!-- !!! NEVER EVER output user token in production env !!! -->
+            <li><a href="/account-info?token={{ token }}">account info</a></li>
+            <li><a href="/operation-history?token={{ token }}">operation history</a></li>
+            <li><a href="/operation-history?token={{ token }}&records=3">operation history (last 3)</a></li>
+            <li><a href="/request-payment?token={{ token }}">request payment (0.02 RUB)</a></li>
+            {% if show_process_payment is defined %}
+                <li><a href="/process-payment?token={{ token }}&request_id={{ request_id }}">process payment (0.02 RUB)</a> <span class="label label-danger">Warning</span> It will spend 0.02 RUB from your account</li>           
+            {% endif %}
+        </ul>
+    {% else %}
+        <form action="/obtain-token/" method="post">
+            <label>Scope</label>
+            <p><input class="input" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
+            <p><button class="btn btn-default" type="submit">Obtain token</button></p>
+            <p>Documentation about scope permissions is <a href="http://api.yandex.ru/money/doc/dg/concepts/protocol-rights.xml">here</a>.</p>
+        </form>
+    {% endif %}
+        
+    {% if result is defined %}
+        <pre>{{ result|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+    {% endif %}
+    </div>
+</body>
+</html>
