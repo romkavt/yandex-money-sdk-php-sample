@@ -8,53 +8,58 @@ require_once "constants.php";
 
 use \YandexMoney\API;
 
-$app = new Silex\Application(); 
-
-$app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/views',
+$app = new \Slim\Slim(array(
+    "debug" => true,
+    "templates.path" => "./views",
+    "view" => new \Slim\Views\Twig(),
 ));
 
-// $app->register(new Silex\Provider\MonologServiceProvider(), array(
-//     'monolog.logfile' => __DIR__.'/development.log',
-// ));
 
 $app->get('/', function() use($app) { 
-    $request = $app['request'];
-    $access_token = $request->query->get('token');
-    return $app['twig']->render("index.html", array(
-        "token" => $access_token
+    $access_token = $app->request->get('token');
+    return $app->render("index.html", array(
+        "token" => $access_token,
     ));
 }); 
 
+$app->post("/obtain-token/", function () use ($app) {
+    $scope = $app->request->post('scope');
+    $url = API::buildObtainTokenUrl(
+        CLIENT_ID,
+        HOST . REDIRECT_URL,
+        CLIENT_SECRET,
+        explode(" ", $scope)
+    );
+    $app->redirect($url);
+});
+
 $app->get("/account-info", function() use($app) {
-    $request = $app['request'];
-    $access_token = $request->query->get('token');
+    $access_token = $app->request->get('token');
     $api = new API($access_token);
     $info = $api->accountInfo();
-    return $app['twig']->render("index.html", array(
+
+    return $app->render("index.html", array(
         "token" => $access_token,
         "result" => $info
     ));
 });
 $app->get("/operation-history", function() use($app) {
-    $request = $app['request'];
-    $access_token = $request->query->get('token');
+    $access_token = $app->request->get('token');
     $api = new API($access_token);
-    $records = $request->query->get("records");
+    $records = $app->request->get('records');
     if($records != NULL) {
         $result = $api->operationHistory(array("records"=>$records));
     }
     else {
         $result = $api->operationHistory();
     }
-    return $app['twig']->render("index.html", array(
+    return $app->render("index.html", array(
         "token" => $access_token,
         "result" => $result
     ));
 });
 $app->get("/request-payment", function () use($app) {
-    $request = $app['request'];
-    $access_token = $request->query->get('token');
+    $access_token = $app->request->get('token');
     $api = new API($access_token);
 
     $result = $api->requestPayment(array(
@@ -65,7 +70,7 @@ $app->get("/request-payment", function () use($app) {
         "message" => "test payment message from yandex-money-php",
         "label" => "testPayment"
     ));
-    return $app['twig']->render("index.html", array(
+    return $app->render("index.html", array(
         "token" => $access_token,
         "show_process_payment" => true,
         "request_id" => $result->request_id,
@@ -74,42 +79,26 @@ $app->get("/request-payment", function () use($app) {
 });
 
 $app->get("/process-payment", function () use($app) {
-    $request = $app['request'];
-    $access_token = $request->query->get('token');
-    $request_id = $request->query->get('request_id');
+    $access_token = $app->request->get('token');
+    $request_id = $app->request->get('request_id');
     $api = new API($access_token);
 
     $result = $api->processPayment(array(
         "request_id" => $request_id
     ));
-    return $app['twig']->render("index.html", array(
+    return $app->render("index.html", array(
         "token" => $access_token,
         "result" => $result
     ));
 });
 
-$app->post("/obtain-token/", function () use ($app) {
-    $request = $app['request'];
-    $scope = $request->request->get('scope');
-    $url = API::buildObtainTokenUrl(
-        CLIENT_ID,
-        HOST . REDIRECT_URL,
-        CLIENT_SECRET,
-        split(" ", $scope)
-    );
-    return $app->redirect($url);
-});
 
 $app->get(REDIRECT_URL, function () use($app) {
-    // authorization_code
-    // public static function getAccessToken($client_id, $code, $redirect_uri) {
-    $code = $app['request']->query->get('code');
+    $code = $app->request->get('code');
     $result = API::getAccessToken(CLIENT_ID, $code,
         HOST . REDIRECT_URL, CLIENT_SECRET);
-    var_dump($result);
-    return $app->redirect(sprintf("/?token=%s", $result->access_token));
+    $app->redirect(sprintf("/?token=%s", $result->access_token));
 });
 
-$app['debug'] = true;
 $app->run(); 
 

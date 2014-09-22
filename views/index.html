@@ -35,7 +35,7 @@
             {% endif %}
         </ul>
     {% else %}
-        <form action="/obtain-token/" method="post">
+        <form action="/obtain-token/" method="POST">
             <label>Scope</label>
             <p><input class="input" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
             <p><button class="btn btn-default" type="submit">Obtain token</button></p>
@@ -44,7 +44,14 @@
     {% endif %}
         
     {% if result is defined %}
-        <pre>{{ result|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+        <pre>{{ result|json_encode(
+            constant('JSON_PRETTY_PRINT')
+            b-or constant('JSON_HEX_TAG')
+            b-or constant('JSON_HEX_APOS')
+            b-or constant('JSON_HEX_QUOT')
+            b-or constant('JSON_HEX_AMP')
+            b-or constant('JSON_UNESCAPED_UNICODE')
+            ) }}</pre>
     {% endif %}
     </div>
 </body>
