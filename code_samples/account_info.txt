@@ -1,0 +1,2 @@
+$api = new API($access_token);
+$account_info = $api->accountInfo();

@@ -3,6 +3,12 @@
     <meta charset="UTF-8">
     <title>Yandex money php sample page</title>
     <link href="http://yandex.st/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/8.2/styles/github.min.css">
+    <script src="http://yandex.st/highlightjs/8.2/highlight.min.js"></script>
+
   <style>
         body {
           padding-top: 20px;
@@ -16,24 +22,66 @@
         .input {
           width: 100%;
         }
+        .panel-heading .accordion-toggle:after {
+            /* symbol for "opening" panels */
+            font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+            float: right;        /* adjust as needed */
+            color: grey;         /* adjust as needed */
+            content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+        }
+        .panel-heading .accordion-toggle.collapsed:after {
+            /* symbol for "collapsed" panels */
+            content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+        }
     </style>
 </head>
-<body>
+<htmlbody>
     <div class="container">
     <h2>Yandex money php sample page</h2>
-    {% if token %}
+    {% if is_result %}
         <h2>API Methods</h2>
-        <h3>Information about a user's account</h3>
-        <ul>
-            <!-- !!! NEVER EVER output user token in production env !!! -->
-            <li><a href="/account-info?token={{ token }}">account info</a></li>
-            <li><a href="/operation-history?token={{ token }}">operation history</a></li>
-            <li><a href="/operation-history?token={{ token }}&records=3">operation history (last 3)</a></li>
-            <li><a href="/request-payment?token={{ token }}">request payment (0.02 RUB)</a></li>
-            {% if show_process_payment is defined %}
-                <li><a href="/process-payment?token={{ token }}&request_id={{ request_id }}">process payment (0.02 RUB)</a> <span class="label label-danger">Warning</span> It will spend 0.02 RUB from your account</li>           
-            {% endif %}
-        </ul>
+
+        {% for method in methods %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ method.name }} </h3>
+          </div>
+          <div class="panel-body">
+            <p>{{ method.info }}</p>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <a class="accordion-toggle collapsed" data-toggle="collapse" href="#collapseCode{{ loop.index }}">
+                            Source code
+                        </a>
+                    </div>
+                </div>
+                <div id="collapseCode{{ loop.index }}" class="panel-collapse collapse">
+                  <div class="panel-body">
+                      <pre><code class="php5">{{ method.code }}</code></pre>
+                  </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <a class="accordion-toggle collapsed" data-toggle="collapse" href="#collapseResponse{{ loop.index }}">
+                            Response
+                        </a>
+                    </div>
+                </div>
+                <div id="collapseResponse{{ loop.index }}" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <pre>
+                        <code class="json">{{ method.response|json_encode(json_format_options) }}</code>
+                    </pre>
+                  </div>
+                </div>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
     {% else %}
         <form action="/obtain-token/" method="POST">
             <label>Scope</label>
@@ -42,17 +90,12 @@
             <p>Documentation about scope permissions is <a href="http://api.yandex.ru/money/doc/dg/concepts/protocol-rights.xml">here</a>.</p>
         </form>
     {% endif %}
-        
-    {% if result is defined %}
-        <pre>{{ result|json_encode(
-            constant('JSON_PRETTY_PRINT')
-            b-or constant('JSON_HEX_TAG')
-            b-or constant('JSON_HEX_APOS')
-            b-or constant('JSON_HEX_QUOT')
-            b-or constant('JSON_HEX_AMP')
-            b-or constant('JSON_UNESCAPED_UNICODE')
-            ) }}</pre>
-    {% endif %}
     </div>
+    <script>
+        hljs.initHighlightingOnLoad();
+        // $('div.code').each(function(i, block) {
+        //   hljs.highlightBlock(block);
+        // });
+        </script>
 </body>
 </html>

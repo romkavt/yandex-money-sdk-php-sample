@@ -1,0 +1,5 @@
+$api = new API($access_token);
+$process_payment = $api->processPayment(array(
+    "request_id" => $request_payment->request_id,
+    "test_payment" => true
+));

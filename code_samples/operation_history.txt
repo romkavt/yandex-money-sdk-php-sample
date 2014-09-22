@@ -1,0 +1,2 @@
+$api = new API($access_token);
+$operation_history = $api->operationHistory(array("records"=>3));

@@ -1,0 +1,10 @@
+$api = new API($access_token);
+$request_payment = $api->requestPayment(array(
+    "pattern_id" => "p2p",
+    "to" => "410011161616877",
+    "amount_due" => "0.02",
+    "comment" => "test payment comment from yandex-money-php",
+    "message" => "test payment message from yandex-money-php",
+    "label" => "testPayment",
+    "test_payment" => true
+));
