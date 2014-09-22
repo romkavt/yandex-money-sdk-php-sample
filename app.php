@@ -26,7 +26,7 @@ $app->post("/obtain-token/", function () use ($app) {
     $scope = $app->request->post('scope');
     $url = API::buildObtainTokenUrl(
         CLIENT_ID,
-        HOST . REDIRECT_URL,
+        REDIRECT_URL,
         CLIENT_SECRET,
         explode(" ", $scope)
     );
@@ -92,11 +92,19 @@ $app->get("/process-payment", function () use($app) {
     ));
 });
 
+function build_relative_url($redirect_url) {
+    $exploded_url = explode('/', $redirect_url);
+    $relative_url_array = array_slice($exploded_url, 3);
+    if($relative_url_array[count($relative_url_array) - 1] == "") {
+        array_pop($relative_url_array);
+    }
+    return "/" . implode('/', $relative_url_array) . "/";
+}
 
-$app->get(REDIRECT_URL, function () use($app) {
+$app->get(build_relative_url(REDIRECT_URL), function () use($app) {
     $code = $app->request->get('code');
     $result = API::getAccessToken(CLIENT_ID, $code,
-        HOST . REDIRECT_URL, CLIENT_SECRET);
+        REDIRECT_URL, CLIENT_SECRET);
     $app->redirect(sprintf("/?token=%s", $result->access_token));
 });
 
