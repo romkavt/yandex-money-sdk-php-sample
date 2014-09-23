@@ -52,7 +52,7 @@ function read_sample($sample_path) {
 }
 
 function build_response($app, $account_info, $operation_history, $request_payment,
-    $process_payment) {
+    $process_payment, $is_process_error) {
 
     return $app->render("index.html", array(
         "methods" => array(
@@ -75,10 +75,13 @@ function build_response($app, $account_info, $operation_history, $request_paymen
                 "response" => $request_payment
             ),
             array(
-                "info" => "Process payment",
+                "info" => "Finish of request payment",
                 "code" => read_sample("process_payment"),
                 "name" => "Process-payment method",
-                "response" => $process_payment
+                "response" => $process_payment,
+                "is_error" => $is_process_error,
+                "message" => "Call process_payment method isn't possible."
+                    . " See request_payment JSON for information"
             )
         ),
         "is_result" => true,
@@ -108,19 +111,20 @@ $app->get(build_relative_url(REDIRECT_URL), function () use($app) {
         "test_payment" => true
     ));
     if($request_payment->status !== "success") {
-        $process_payment = array(
-            "error" => "Call process_payment method isn't possible."
-                . " See request_payment JSON for info"
-        );
+        // $is_process_error = "Call process_payment method isn't possible."
+        //         . " See request_payment JSON for info";
+        $is_process_error = true;
+        $process_payment = array();
     }
     else {
+        $is_process_error = false;
         $process_payment = $api->processPayment(array(
             "request_id" => $request_payment->request_id,
             "test_payment" => true
         ));
     }
     return build_response($app, $account_info, $operation_history,
-        $request_payment, $process_payment);
+        $request_payment, $process_payment, $is_process_error);
 });
 
 $app->get("/debug/", function () use($app) {
@@ -129,7 +133,7 @@ $app->get("/debug/", function () use($app) {
         "foo" => "кирилица"
     );
     return build_response($app, $sample_json, $sample_json, $sample_json,
-        $sample_json);
+        $sample_json, true);
 });
 $app->run(); 
 

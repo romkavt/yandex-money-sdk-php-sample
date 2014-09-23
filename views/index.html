@@ -37,12 +37,14 @@
         }
     </style>
 </head>
-<htmlbody>
+<html>
+<body>
     <div class="container">
         <div class="header clearfix">
             <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
-            <h2>Yandex money php sample page</h2>
+            <h2>Yandex.Money PHP sample page</h2>
         </div>
+    <p>You can check out docs <a href="http://api.yandex.com/money/doc/dg/concepts/About.xml">in English</a> and <a href="http://api.yandex.ru/money/doc/dg/concepts/About.xml">in Russian</a>.</p>
     {% if is_result %}
         <h2>API Methods</h2>
 
@@ -53,6 +55,9 @@
           </div>
           <div class="panel-body">
             <p>{{ method.info }}</p>
+            {% if method.is_error %}
+            <div class="alert alert-danger" role="alert"><strong>Error! </strong>{{ method.message }}</div>
+            {% else %}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -83,6 +88,7 @@
                   </div>
                 </div>
             </div>
+            {% endif %}
 
           </div>
         </div>
