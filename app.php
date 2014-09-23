@@ -51,6 +51,45 @@ function read_sample($sample_path) {
     return $content;
 }
 
+function build_response($app, $account_info, $operation_history, $request_payment,
+    $process_payment) {
+
+    return $app->render("index.html", array(
+        "methods" => array(
+            array(
+                "info" => "Information about user's yandex money account",
+                "code" => read_sample("account_info"),
+                "name" => "Account-info method",
+                "response" => $account_info
+            ),
+            array(
+                "info" => "Last 3 records of the operation history",
+                "code" => read_sample("operation_history"),
+                "name" => "Operation-history method",
+                "response" => $operation_history
+            ),
+            array(
+                "info" => "P2p request payment to another user account",
+                "code" => read_sample("request_payment"),
+                "name" => "Request-payment method",
+                "response" => $request_payment
+            ),
+            array(
+                "info" => "Process payment",
+                "code" => read_sample("process_payment"),
+                "name" => "Process-payment method",
+                "response" => $process_payment
+            )
+        ),
+        "is_result" => true,
+        "json_format_options" => JSON_PRETTY_PRINT
+            | JSON_HEX_TAG
+            | JSON_HEX_QUOT
+            | JSON_HEX_AMP
+            | JSON_UNESCAPED_UNICODE
+    ));
+}
+
 $app->get(build_relative_url(REDIRECT_URL), function () use($app) {
     $code = $app->request->get('code');
     $access_token = API::getAccessToken(CLIENT_ID, $code,
@@ -72,20 +111,8 @@ $app->get(build_relative_url(REDIRECT_URL), function () use($app) {
         "request_id" => $request_payment->request_id,
         "test_payment" => true
     ));
-    return $app->render("index.html", array(
-        "token" => $access_token,
-        "account_info" => $account_info,
-        "operation_history" => $operation_history,
-        "request_payment" => $request_payment,
-        "process_payment" => $process_payment,
-        "is_result" => true,
-        "json_format_options" =>
-            JSON_PRETTY_PRINT
-            | JSON_HEX_TAG
-            | JSON_HEX_QUOT
-            | JSON_HEX_AMP
-            | JSON_UNESCAPED_UNICODE
-    ));
+    return build_response($app, $account_info, $operation_history,
+        $request_payment, $process_payment);
 });
 
 $app->get("/debug/", function () use($app) {
@@ -93,41 +120,8 @@ $app->get("/debug/", function () use($app) {
         "foo" => "bar",
         "foo" => "кирилица"
     );
-    return $app->render("index.html", array(
-        "methods" => array(
-            array(
-                "info" => "account info text here",
-                "code" => read_sample("account_info"),
-                "name" => "Account info",
-                "response" => $sample_json
-            ),
-            array(
-                "info" => "operation history text here",
-                "code" => read_sample("operation_history"),
-                "name" => "Operation history info",
-                "response" => $sample_json
-            ),
-            array(
-                "info" => "request_payment text here",
-                "code" => read_sample("request_payment"),
-                "name" => "Request_payment info",
-                "response" => $sample_json
-            ),
-            array(
-                "info" => "process payment text here",
-                "code" => read_sample("process_payment"),
-                "name" => "Process payment info",
-                "response" => $sample_json
-            )
-        ),
-        "token" => $sample_json,
-        "is_result" => true,
-        "json_format_options" => JSON_PRETTY_PRINT
-            | JSON_HEX_TAG
-            | JSON_HEX_QUOT
-            | JSON_HEX_AMP
-            | JSON_UNESCAPED_UNICODE
-    ));
+    return build_response($app, $sample_json, $sample_json, $sample_json,
+        $sample_json);
 });
 $app->run(); 
 
