@@ -1,5 +1,12 @@
-$api = new API($access_token);
-$process_payment = $api->processPayment(array(
-    "request_id" => $request_payment->request_id,
-    "test_payment" => true
-));
+if($is_process_error) {
+    echo "The request-payment returns error. No operation.";
+} 
+else {
+    $process_payment = $api->processPayment(array(
+        "request_id" => $request_payment->request_id,
+        "test_payment" => true
+    ));
+    echo printf("You send %f to %s wallet",
+        $process_payment->credit_amount,
+        $process_payment->payee);
+}

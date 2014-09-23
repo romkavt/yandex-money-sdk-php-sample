@@ -52,30 +52,61 @@ function read_sample($sample_path) {
 }
 
 function build_response($app, $account_info, $operation_history, $request_payment,
-    $process_payment, $is_process_error) {
+    $process_payment) {
+
+    if(count($operation_history->operations) < 3) {
+        $operation_history_info =  sprintf(
+            "You have less then 3 records in your payment history");
+    }
+    else {
+        $operation_history_info =  sprintf(
+            "The last 3 payment titles are: %s, %s, %s",
+            $operation_history->operations[0]->title,
+            $operation_history->operations[1]->title,
+            $operation_history->operations[2]->title
+        );
+    }
+    if($request_payment->status == "success") {
+        $request_payment_info = "Response of request-payment is successive.";
+        $is_process_error = false;
+    }
+    else {
+        $request_payment_info = "Response of request-payment is errorneous."
+            . sprintf(" The error label is %s", $request_payment->error);
+        $is_process_error = true;
+    }
+    if($is_process_error) {
+        $process_payment_info = "The request-payment returns error. No operation.";
+    } 
+    else {
+        $process_payment_info = printf("You send %f to %s wallet",
+            $process_payment->credit_amount,
+            $process_payment->payee);
+    }
 
     return $app->render("index.html", array(
         "methods" => array(
             array(
-                "info" => "Information about user's yandex money account",
+                "info" => sprintf("You wallet balance is %s RUB",
+                    $account_info->balance),
                 "code" => read_sample("account_info"),
                 "name" => "Account-info method",
                 "response" => $account_info
             ),
             array(
-                "info" => "Last 3 records of the operation history",
+                "info" => $operation_history_info,
                 "code" => read_sample("operation_history"),
                 "name" => "Operation-history method",
                 "response" => $operation_history
             ),
             array(
-                "info" => "P2p request payment to another user account",
+                "info" => $request_payment_info,
                 "code" => read_sample("request_payment"),
                 "name" => "Request-payment method",
                 "response" => $request_payment
             ),
             array(
-                "info" => "Finish of request payment",
+                "info" => $process_payment_info,
                 "code" => read_sample("process_payment"),
                 "name" => "Process-payment method",
                 "response" => $process_payment,
@@ -111,20 +142,16 @@ $app->get(build_relative_url(REDIRECT_URL), function () use($app) {
         "test_payment" => true
     ));
     if($request_payment->status !== "success") {
-        // $is_process_error = "Call process_payment method isn't possible."
-        //         . " See request_payment JSON for info";
-        $is_process_error = true;
         $process_payment = array();
     }
     else {
-        $is_process_error = false;
         $process_payment = $api->processPayment(array(
             "request_id" => $request_payment->request_id,
             "test_payment" => true
         ));
     }
     return build_response($app, $account_info, $operation_history,
-        $request_payment, $process_payment, $is_process_error);
+        $request_payment, $process_payment);
 });
 
 $app->get("/debug/", function () use($app) {
@@ -132,8 +159,61 @@ $app->get("/debug/", function () use($app) {
         "foo" => "bar",
         "foo" => "кирилица"
     );
-    return build_response($app, $sample_json, $sample_json, $sample_json,
-        $sample_json, true);
+    $account_info = json_decode('{
+    "account": "410012514683192",
+    "balance": 0.01,
+    "currency": "643",
+    "account_type": "personal",
+    "identified": false,
+    "account_status": "named",
+    "cards_linked": [
+        {
+            "type": "VISA",
+            "pan_fragment": "404891******6322"
+        }
+    ]"');
+    $operation_history = json_decode('
+        {
+    "next_record": "3",
+    "operations": [
+        {
+            "pattern_id": "p2p",
+            "operation_id": "464772599079110015",
+            "title": "Перевод на счет 410011161616877",
+            "amount": 0.03,
+            "direction": "out",
+            "datetime": "2014-09-23T07:29:59Z",
+            "label": "testPayment",
+            "status": "success",
+            "type": "outgoing-transfer"
+        },
+        {
+            "pattern_id": "p2p",
+            "operation_id": "464772538844110011",
+            "title": "Перевод на счет 410011161616877",
+            "amount": 0.03,
+            "direction": "out",
+            "datetime": "2014-09-23T07:28:59Z",
+            "label": "testPayment",
+            "status": "success",
+            "type": "outgoing-transfer"
+        },
+        {
+            "pattern_id": "p2p",
+            "operation_id": "464771635604110014",
+            "title": "Перевод на счет 410011161616877",
+            "amount": 0.03,
+            "direction": "out",
+            "datetime": "2014-09-23T07:13:56Z",
+            "label": "testPayment",
+            "status": "success",
+            "type": "outgoing-transfer"
+        }
+    ]
+}
+    ');
+    return build_response($app, $account_info, $sample_json, $sample_json,
+        $sample_json);
 });
 $app->run(); 
 

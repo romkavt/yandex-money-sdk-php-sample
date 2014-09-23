@@ -1,2 +1,11 @@
-$api = new API($access_token);
 $operation_history = $api->operationHistory(array("records"=>3));
+if(count($operation_history->operations) < 3) {
+    echo sprintf("You have less then 3 records in your payment history");
+}
+else {
+    echo sprintf("The last 3 payment titles are: %s, %s, %s",
+        $operation_history->operations[0]->title,
+        $operation_history->operations[1]->title,
+        $operation_history->operations[2]->title
+    );
+}

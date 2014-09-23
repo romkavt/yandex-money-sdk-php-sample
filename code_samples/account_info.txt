@@ -1,2 +1,4 @@
 $api = new API($access_token);
-$account_info = $api->accountInfo();
+$account_info= $api->accountInfo(); // Click response tab to view
+echo sprintf("You wallet balance is %s RUB", $account_info->balance);
+

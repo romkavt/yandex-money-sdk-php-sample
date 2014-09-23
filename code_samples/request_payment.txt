@@ -1,4 +1,3 @@
-$api = new API($access_token);
 $request_payment = $api->requestPayment(array(
     "pattern_id" => "p2p",
     "to" => "410011161616877",
@@ -8,3 +7,12 @@ $request_payment = $api->requestPayment(array(
     "label" => "testPayment",
     "test_payment" => true
 ));
+if($request_payment->status == "success") {
+    echo "Response of request-payment is successive.";
+    $is_process_error = false;
+}
+else {
+    echo "Response of request-payment is errorneous."
+        . sprintf(" The error label is %s", $request_payment->error);
+    $is_process_error = true;
+}

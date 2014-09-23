@@ -1,7 +1,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Yandex money php sample page</title>
+    <title>Yandex money php sample</title>
     <link href="http://yandex.st/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -42,7 +42,7 @@
     <div class="container">
         <div class="header clearfix">
             <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
-            <h2>Yandex.Money PHP sample page</h2>
+            <h2>Yandex.Money PHP sample</h2>
         </div>
     <p>You can check out docs <a href="http://api.yandex.com/money/doc/dg/concepts/About.xml">in English</a> and <a href="http://api.yandex.ru/money/doc/dg/concepts/About.xml">in Russian</a>.</p>
     {% if is_result %}
@@ -66,7 +66,7 @@
                         </a>
                     </div>
                 </div>
-                <div id="collapseCode{{ loop.index }}" class="panel-collapse collapse">
+                <div id="collapseCode{{ loop.index }}" class="panel-collapse collapse in">
                   <div class="panel-body">
                       <pre><code class="php5">{{ method.code }}</code></pre>
                   </div>
