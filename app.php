@@ -107,10 +107,18 @@ $app->get(build_relative_url(REDIRECT_URL), function () use($app) {
         "label" => "testPayment",
         "test_payment" => true
     ));
-    $process_payment = $api->processPayment(array(
-        "request_id" => $request_payment->request_id,
-        "test_payment" => true
-    ));
+    if($request_payment->status !== "success") {
+        $process_payment = array(
+            "error" => "Call process_payment method isn't possible."
+                . " See request_payment JSON for info"
+        );
+    }
+    else {
+        $process_payment = $api->processPayment(array(
+            "request_id" => $request_payment->request_id,
+            "test_payment" => true
+        ));
+    }
     return build_response($app, $account_info, $operation_history,
         $request_payment, $process_payment);
 });
