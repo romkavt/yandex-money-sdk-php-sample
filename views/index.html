@@ -18,7 +18,6 @@
         .container {
           max-width: 730px;
         }
-
         .input {
           width: 100%;
         }
@@ -33,11 +32,17 @@
             /* symbol for "collapsed" panels */
             content: "\e114";    /* adjust as needed, taken from bootstrap.css */
         }
+        .logo {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <htmlbody>
     <div class="container">
-    <h2>Yandex money php sample page</h2>
+        <div class="header clearfix">
+            <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
+            <h2>Yandex money php sample page</h2>
+        </div>
     {% if is_result %}
         <h2>API Methods</h2>
 
