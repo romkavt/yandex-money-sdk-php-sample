@@ -2,8 +2,7 @@
 
 require_once 'vendor/autoload.php';
 
-require_once 'vendor/yandex-money/yandex-money-sdk-php-simplified/lib/api.php';
-require_once 'vendor/yandex-money/yandex-money-sdk-php-simplified/lib/exceptions.php';
+require_once 'vendor/yandex-money/yandex-money-sdk-php/lib/api.php';
 require_once "constants.php";
 
 use \YandexMoney\API;
