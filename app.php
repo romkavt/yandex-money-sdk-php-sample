@@ -26,7 +26,6 @@ $app->post("/obtain-token/", function () use ($app) {
     $url = API::buildObtainTokenUrl(
         CLIENT_ID,
         REDIRECT_URL,
-        CLIENT_SECRET,
         explode(" ", $scope)
     );
     $app->redirect($url);
