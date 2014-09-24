@@ -79,7 +79,7 @@ function build_response($app, $account_info, $operation_history, $request_paymen
         $process_payment_info = "The request-payment returns error. No operation.";
     } 
     else {
-        $process_payment_info = printf("You send %f to %s wallet",
+        $process_payment_info = sprintf("You send %f to %s wallet",
             $process_payment->credit_amount,
             $process_payment->payee);
     }
@@ -155,65 +155,32 @@ $app->get(build_relative_url(REDIRECT_URL), function () use($app) {
 });
 
 $app->get("/debug/", function () use($app) {
-    $sample_json = array(
-        "foo" => "bar",
-        "foo" => "кирилица"
-    );
-    $account_info = json_decode('{
-    "account": "410012514683192",
-    "balance": 0.01,
-    "currency": "643",
-    "account_type": "personal",
-    "identified": false,
-    "account_status": "named",
-    "cards_linked": [
-        {
-            "type": "VISA",
-            "pan_fragment": "404891******6322"
-        }
-    ]"');
-    $operation_history = json_decode('
-        {
-    "next_record": "3",
-    "operations": [
-        {
-            "pattern_id": "p2p",
-            "operation_id": "464772599079110015",
-            "title": "Перевод на счет 410011161616877",
-            "amount": 0.03,
-            "direction": "out",
-            "datetime": "2014-09-23T07:29:59Z",
-            "label": "testPayment",
-            "status": "success",
-            "type": "outgoing-transfer"
-        },
-        {
-            "pattern_id": "p2p",
-            "operation_id": "464772538844110011",
-            "title": "Перевод на счет 410011161616877",
-            "amount": 0.03,
-            "direction": "out",
-            "datetime": "2014-09-23T07:28:59Z",
-            "label": "testPayment",
-            "status": "success",
-            "type": "outgoing-transfer"
-        },
-        {
-            "pattern_id": "p2p",
-            "operation_id": "464771635604110014",
-            "title": "Перевод на счет 410011161616877",
-            "amount": 0.03,
-            "direction": "out",
-            "datetime": "2014-09-23T07:13:56Z",
-            "label": "testPayment",
-            "status": "success",
-            "type": "outgoing-transfer"
-        }
-    ]
-}
-    ');
-    return build_response($app, $account_info, $sample_json, $sample_json,
-        $sample_json);
+    $account_info = json_decode(json_encode(array(
+        "balance" => "0.01"
+    )), false);
+    $operation_history = json_decode(json_encode(array(
+        "operations" => array(
+            array(
+                "title" => "foo"
+            ),
+            array(
+                "title" => "foo1"
+            ),
+            array(
+                "title" => "foo2"
+            )
+        )
+    )), false);
+
+    $request_payment = json_decode(json_encode(array(
+        "status" => "success"
+    )), false);
+    $process_payment = json_decode(json_encode(array(
+        "credit_amount" => 1.1,
+        "payee" => "some person"
+    )), false);
+    return build_response($app, $account_info, $operation_history, $request_payment,
+        $process_payment);
 });
 $app->run(); 
 
