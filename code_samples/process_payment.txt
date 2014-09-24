@@ -6,7 +6,7 @@ else {
         "request_id" => $request_payment->request_id,
         "test_payment" => true
     ));
-    echo printf("You send %f to %s wallet",
+    echo printf("You send %g to %s wallet",
         $process_payment->credit_amount,
         $process_payment->payee);
 }

@@ -79,7 +79,7 @@ function build_response($app, $account_info, $operation_history, $request_paymen
         $process_payment_info = "The request-payment returns error. No operation.";
     } 
     else {
-        $process_payment_info = sprintf("You send %f to %s wallet",
+        $process_payment_info = sprintf("You send %g to %s wallet",
             $process_payment->credit_amount,
             $process_payment->payee);
     }
@@ -90,25 +90,25 @@ function build_response($app, $account_info, $operation_history, $request_paymen
                 "info" => sprintf("You wallet balance is %s RUB",
                     $account_info->balance),
                 "code" => read_sample("account_info"),
-                "name" => "Account-info method",
+                "name" => "Account-info",
                 "response" => $account_info
             ),
             array(
                 "info" => $operation_history_info,
                 "code" => read_sample("operation_history"),
-                "name" => "Operation-history method",
+                "name" => "Operation-history",
                 "response" => $operation_history
             ),
             array(
                 "info" => $request_payment_info,
                 "code" => read_sample("request_payment"),
-                "name" => "Request-payment method",
+                "name" => "Request-payment",
                 "response" => $request_payment
             ),
             array(
                 "info" => $process_payment_info,
                 "code" => read_sample("process_payment"),
-                "name" => "Process-payment method",
+                "name" => "Process-payment",
                 "response" => $process_payment,
                 "is_error" => $is_process_error,
                 "message" => "Call process_payment method isn't possible."

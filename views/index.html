@@ -21,19 +21,22 @@
         .input {
           width: 100%;
         }
-        .panel-heading .accordion-toggle:after {
+        .accordion-toggle .panel-title:after {
             /* symbol for "opening" panels */
             font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
             float: right;        /* adjust as needed */
             color: grey;         /* adjust as needed */
             content: "\e080";    /* adjust as needed, taken from bootstrap.css */
         }
-        .panel-heading .accordion-toggle.collapsed:after {
+        .accordion-toggle.collapsed .panel-title:after {
             /* symbol for "collapsed" panels */
             content: "\e114";    /* adjust as needed, taken from bootstrap.css */
         }
         .logo {
             margin-right: 10px;
+        }
+        .panel-heading {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -49,49 +52,38 @@
         <h2>API Methods</h2>
 
         {% for method in methods %}
+        <h2 class="panel-title">{{ method.name }} </h2>
+        <p> {{ method.info }}</p>
+        {% if method.is_error %}
+        <div class="alert alert-danger" role="alert"><strong>Error! </strong>{{ method.message }}</div>
+        {% else %}
         <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">{{ method.name }} </h3>
-          </div>
-          <div class="panel-body">
-            <p>{{ method.info }}</p>
-            {% if method.is_error %}
-            <div class="alert alert-danger" role="alert"><strong>Error! </strong>{{ method.message }}</div>
-            {% else %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        <a class="accordion-toggle collapsed" data-toggle="collapse" href="#collapseCode{{ loop.index }}">
-                            Source code
-                        </a>
-                    </div>
-                </div>
-                <div id="collapseCode{{ loop.index }}" class="panel-collapse collapse in">
-                  <div class="panel-body">
-                      <pre><code class="php5">{{ method.code }}</code></pre>
-                  </div>
+            <div class="panel-heading accordion-toggle" data-toggle="collapse" href="#collapseCode{{ loop.index }}">
+                <div class="panel-title">
+                    Source code
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        <a class="accordion-toggle collapsed" data-toggle="collapse" href="#collapseResponse{{ loop.index }}">
-                            Response
-                        </a>
-                    </div>
-                </div>
-                <div id="collapseResponse{{ loop.index }}" class="panel-collapse collapse">
-                  <div class="panel-body">
-                    <pre>
-                        <code class="json">{{ method.response|json_encode(json_format_options) }}</code>
-                    </pre>
-                  </div>
-                </div>
+            <div id="collapseCode{{ loop.index }}" class="panel-collapse collapse in">
+              <div class="panel-body">
+                  <pre><code class="php5">{{ method.code }}</code></pre>
+              </div>
             </div>
-            {% endif %}
-
-          </div>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading accordion-toggle collapsed" data-toggle="collapse" href="#collapseResponse{{ loop.index }}">
+                <div class="panel-title">
+                    Response
+                </div>
+            </div>
+            <div id="collapseResponse{{ loop.index }}" class="panel-collapse collapse">
+              <div class="panel-body">
+                <pre>
+                    <code class="json">{{ method.response|json_encode(json_format_options) }}</code>
+                </pre>
+              </div>
+            </div>
+        </div>
+        {% endif %}
         {% endfor %}
     {% else %}
         <form action="/obtain-token/" method="POST">
