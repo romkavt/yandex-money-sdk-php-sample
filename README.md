@@ -1,7 +1,7 @@
 # About
 
 This app provides sample usage of
-[yandex-money-php-simplified](https://github.com/raymank26/yandex-money-php-simplified) library.
+[yandex-money-php](https://github.com/yandex-money/yandex-money-sdk-php) library.
 
 # How to use
 
