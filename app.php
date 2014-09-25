@@ -2,9 +2,14 @@
 
 require_once 'vendor/autoload.php';
 
-require_once "constants.php";
-
+require_once 'vendor/yandex-money/yandex-money-sdk-php/lib/api.php';
 use \YandexMoney\API;
+
+// For payments from bank cards without authorization
+require_once 'vendor/yandex-money/yandex-money-sdk-php/lib/external_payment.php';
+use \YandexMoney\ExternalPayment;
+
+require_once "constants.php";
 
 $app = new \Slim\Slim(array(
     "debug" => true,
@@ -16,7 +21,6 @@ $app->get('/', function() use($app) {
     $access_token = $app->request->get('token');
     return $app->render("index.html", array(
         "token" => $access_token,
-        "is_result" => false
     ));
 }); 
 
@@ -28,6 +32,99 @@ $app->post("/obtain-token/", function () use ($app) {
         explode(" ", $scope)
     );
     $app->redirect($url);
+});
+function write_file($filename, $content) {
+    $file = fopen($filename, "w");
+    fwrite($file, $content);
+    fclose($file);
+}
+function read_file($filename, $as_json=false) {
+    $file = fopen($filename, "r");
+    $content = fread($file,filesize($filename));
+    fclose($file);
+    if($as_json) {
+        return json_decode($content);
+    }
+    else {
+        return $content;
+    }
+
+}
+
+$app->post("/process-external/", function () use ($app) {
+    $phone_number = $app->request->post("phone");
+    $value = $app->request->post("value");
+    if(file_exists("instance_id.txt")) {
+        $instance_id = read_file("instance_id.txt");
+    }
+    else {
+        $instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
+        write_file("instance_id.txt", $instance_id_json->instance_id);
+        write_file("instance_id_result.txt", json_encode($instance_id_json));
+        $instance_id = $instance_id_json->instance_id;
+    }
+    $api = new ExternalPayment($instance_id);
+    // check response
+
+    $request_result = $api->request(array(
+        "pattern_id" => "phone-topup",
+        "phone-number" => $phone_number,
+        "amount" => $value
+    ));
+    // save requst_id in cache/DB/etc
+    write_file("request_id.txt", $request_result->request_id);
+
+    $process_result = $api->process(array(
+        "request_id" => $request_result->request_id,
+        "ext_auth_success_uri" => "http://localhost:8000/external-success/",
+        "ext_auth_fail_uri" => "http://localhost:8000/external-fail/"
+    ));
+    write_file("request_result.txt", json_encode($request_result));
+    write_file("process_result.txt", json_encode($process_result));
+
+    $url = sprintf("%s?%s", $process_result->acs_uri,
+        http_build_query($process_result->acs_params)
+        );
+    $app->redirect($url);
+});
+
+$app->get("/external-success/", function () use ($app) {
+
+    $request_id = read_file("request_id.txt");
+    $instance_id = read_file("instance_id.txt");
+
+    $api = new ExternalPayment($instance_id);
+    $result = $api->process(array(
+        "request_id" => $request_id,
+        "ext_auth_success_uri" => "http://localhost:8000/external-success/",
+        "ext_auth_fail_uri" => "http://localhost:8000/external-fail/"
+    ));
+    return $app->render("cards.html", array(
+        "payment_result" => $result,
+        "instance_id_code" =>
+            read_file("code_samples/external_payment/obtain_instance_id.txt"),
+        "request_code" =>
+            read_file("code_samples/external_payment/request_payment.txt"),
+        "process_code" =>
+            read_file("code_samples/external_payment/process_payment.txt"),
+        "process_code2" =>
+            read_file("code_samples/external_payment/process_payment2.txt"),
+        "responses" => array(
+            "instance_id" => read_file("instance_id_result.txt", true),
+            "request" => read_file("request_result.txt", true),
+            "process1" => read_file("process_result.txt", true),
+            "process2" => $result
+        ),
+        "json_format_options" => JSON_PRETTY_PRINT
+            | JSON_HEX_TAG
+            | JSON_HEX_QUOT
+            | JSON_HEX_AMP
+            | JSON_UNESCAPED_UNICODE
+
+    ));
+});
+$app->get("/external-fail/", function () use ($app) {
+    echo "HERE";
 });
 
 function build_relative_url($redirect_url) {
@@ -81,7 +178,7 @@ function build_response($app, $account_info, $operation_history, $request_paymen
             $process_payment->payee);
     }
 
-    return $app->render("index.html", array(
+    return $app->render("auth.html", array(
         "methods" => array(
             array(
                 "info" => sprintf("You wallet balance is %s RUB",
@@ -112,7 +209,6 @@ function build_response($app, $account_info, $operation_history, $request_paymen
                     . " See request_payment JSON for information"
             )
         ),
-        "is_result" => true,
         "json_format_options" => JSON_PRETTY_PRINT
             | JSON_HEX_TAG
             | JSON_HEX_QUOT

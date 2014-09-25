@@ -1,0 +1,10 @@
+// load saved instance_id and request_id
+$request_id = read_file("request_id.txt");
+$instance_id = read_file("instance_id.txt");
+
+$api = new ExternalPayment($instance_id);
+$result = $api->process(array(
+    "request_id" => $request_id,
+    "ext_auth_success_uri" => "http://localhost:8000/external-success/",
+    "ext_auth_fail_uri" => "http://localhost:8000/external-fail/"
+));

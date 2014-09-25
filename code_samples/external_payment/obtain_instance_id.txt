@@ -1,0 +1,11 @@
+$phone_number = $app->request->post("phone");
+$value = $app->request->post("value");
+if(file_exists("instance_id.txt")) {
+    $instance_id = read_file("instance_id.txt");
+}
+else {
+    $instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
+    write_file("instance_id.txt", $instance_id_json->instance_id);
+}
+$api = new ExternalPayment($instance_id);
+// check response

@@ -1,0 +1,19 @@
+{% extends 'index.html' %}
+
+{% block result %}
+<h2>API Methods</h2>
+
+{% for method in methods %}
+<h2 class="panel-title">{{ method.name }} </h2>
+<p> {{ method.info }}</p>
+{% if method.is_error %}
+<div class="alert alert-danger" role="alert"><strong>Error! </strong>{{ method.message }}</div>
+{% else %}
+  {% include 'helpers/panel_source.html' with
+      {'title': "Source code", 'body': method.code, 'id': 100 + loop.index } only %}
+  {% include 'helpers/panel_source.html' with
+      {'title': "Response", 'body': method.response|json_encode(json_format_options), 'id': loop.index, "is_collapsed": true } only %}
+{% endif %}
+{% endfor %}
+    
+{% endblock %}

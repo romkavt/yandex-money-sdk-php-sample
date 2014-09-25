@@ -1,0 +1,21 @@
+<div class="panel panel-default">
+    {% if is_collapsed %}
+    <div class="panel-heading accordion-toggle collapsed" data-toggle="collapse" href="#collapseCode{{ id }}">
+    {% else %}
+    <div class="panel-heading accordion-toggle" data-toggle="collapse" href="#collapseCode{{ id }}">
+    {% endif %}
+        <div class="panel-title">
+            {{ title }}
+        </div>
+    </div>
+    {% if is_collapsed %}
+    <div id="collapseCode{{ id }}" class="panel-collapse collapse">
+    {% else %}
+    <div id="collapseCode{{ id }}" class="panel-collapse collapse in">
+    {% endif %}
+      <div class="panel-body">
+          <pre><code class="php5">{{ body }}</code></pre>
+      </div>
+    </div>
+</div>
+

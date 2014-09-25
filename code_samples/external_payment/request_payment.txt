@@ -1,0 +1,7 @@
+$request_result = $api->request(array(
+    "pattern_id" => "phone-topup",
+    "phone-number" => $phone_number,
+    "amount" => $value
+));
+// save requst_id in cache/DB/etc
+write_file("request_id.txt", $request_result->request_id);
