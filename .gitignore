@@ -3,5 +3,7 @@
 constants.php
 *.log
 vendor/
+results/*.txt
+store/*.txt
 
 

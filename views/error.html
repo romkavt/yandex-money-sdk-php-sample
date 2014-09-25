@@ -1,0 +1,9 @@
+{% extends 'index.html' %}
+
+{% block result %}
+    Something went wrong. The response is 
+    <pre><code class="json">{{ response|json_encode(json_format_options) }}</code></pre>
+
+    Check your input and <a href="/">repeat request</a>
+
+{% endblock %}

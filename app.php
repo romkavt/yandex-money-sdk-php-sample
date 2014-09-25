@@ -51,18 +51,27 @@ function read_file($filename, $as_json=false) {
 
 }
 
+function show_error($result, $app) {
+        return $app->render("error.html", array(
+            "json_format_options" => JSON_PRETTY_PRINT
+                | JSON_HEX_TAG
+                | JSON_HEX_QUOT
+                | JSON_HEX_AMP
+                | JSON_UNESCAPED_UNICODE,
+            "response" => $result
+        ));
+
+}
+
 $app->post("/process-external/", function () use ($app) {
     $phone_number = $app->request->post("phone");
     $value = $app->request->post("value");
-    if(file_exists("instance_id.txt")) {
-        $instance_id = read_file("instance_id.txt");
-    }
-    else {
-        $instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
-        write_file("instance_id.txt", $instance_id_json->instance_id);
-        write_file("instance_id_result.txt", json_encode($instance_id_json));
-        $instance_id = $instance_id_json->instance_id;
-    }
+
+    $instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
+    write_file("store/instance_id.txt", $instance_id_json->instance_id);
+    write_file("results/instance_id.txt", json_encode($instance_id_json));
+
+    $instance_id = $instance_id_json->instance_id;
     $api = new ExternalPayment($instance_id);
     // check response
 
@@ -71,16 +80,22 @@ $app->post("/process-external/", function () use ($app) {
         "phone-number" => $phone_number,
         "amount" => $value
     ));
+    if($request_result->status != "success") {
+        return show_error($request_result, $app);
+    }
     // save requst_id in cache/DB/etc
-    write_file("request_id.txt", $request_result->request_id);
+    write_file("store/request_id.txt", $request_result->request_id);
 
     $process_result = $api->process(array(
         "request_id" => $request_result->request_id,
         "ext_auth_success_uri" => "http://localhost:8000/external-success/",
         "ext_auth_fail_uri" => "http://localhost:8000/external-fail/"
     ));
-    write_file("request_result.txt", json_encode($request_result));
-    write_file("process_result.txt", json_encode($process_result));
+    if($process_result->status != "success") {
+        return show_error($request_result, $app);
+    }
+    write_file("results/request.txt", json_encode($request_result));
+    write_file("results/process.txt", json_encode($process_result));
 
     $url = sprintf("%s?%s", $process_result->acs_uri,
         http_build_query($process_result->acs_params)
@@ -90,8 +105,8 @@ $app->post("/process-external/", function () use ($app) {
 
 $app->get("/external-success/", function () use ($app) {
 
-    $request_id = read_file("request_id.txt");
-    $instance_id = read_file("instance_id.txt");
+    $request_id = read_file("store/request_id.txt");
+    $instance_id = read_file("store/instance_id.txt");
 
     $api = new ExternalPayment($instance_id);
     $result = $api->process(array(
@@ -110,9 +125,9 @@ $app->get("/external-success/", function () use ($app) {
         "process_code2" =>
             read_file("code_samples/external_payment/process_payment2.txt"),
         "responses" => array(
-            "instance_id" => read_file("instance_id_result.txt", true),
-            "request" => read_file("request_result.txt", true),
-            "process1" => read_file("process_result.txt", true),
+            "instance_id" => read_file("results/instance_id.txt", true),
+            "request" => read_file("results/request.txt", true),
+            "process1" => read_file("results/process.txt", true),
             "process2" => $result
         ),
         "json_format_options" => JSON_PRETTY_PRINT
