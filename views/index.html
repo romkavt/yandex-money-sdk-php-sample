@@ -18,9 +18,6 @@
         .container {
           max-width: 730px;
         }
-        .input {
-          width: 100%;
-        }
         .accordion-toggle .panel-title:after {
             /* symbol for "opening" panels */
             font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
@@ -52,7 +49,7 @@
         <h3>Payments from the Yandex.Money wallet</h3>
         <form action="/obtain-token/" method="POST">
             <label>Scope</label>
-            <p><input class="input" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
+            <p><input class="form-control" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
             <p><button class="btn btn-primary" type="submit">Obtain token</button></p>
             <p>Documentation about scope permissions is <a href="http://api.yandex.ru/money/doc/dg/concepts/protocol-rights.xml">here</a>.</p>
         </form>
