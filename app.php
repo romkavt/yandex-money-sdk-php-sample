@@ -2,11 +2,7 @@
 
 require_once 'vendor/autoload.php';
 
-require_once 'vendor/yandex-money/yandex-money-sdk-php/lib/api.php';
 use \YandexMoney\API;
-
-// For payments from bank cards without authorization
-require_once 'vendor/yandex-money/yandex-money-sdk-php/lib/external_payment.php';
 use \YandexMoney\ExternalPayment;
 
 require_once "constants.php";

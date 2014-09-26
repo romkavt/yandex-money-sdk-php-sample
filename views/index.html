@@ -49,12 +49,13 @@
         <h3>Payments from the Yandex.Money wallet</h3>
         <form action="/obtain-token/" method="POST">
             <label>Scope</label>
-            <p><input class="form-control" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
+            <p><input disabled class="form-control" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
             <p><button class="btn btn-primary" type="submit">Obtain token</button></p>
             <p>Documentation about scope permissions is <a href="http://api.yandex.ru/money/doc/dg/concepts/protocol-rights.xml">here</a>.</p>
         </form>
 
         <h3>Payments from bank cards without authorization</h3>
+        Make a payment to phone number
         <form action="/process-external/" method="POST">
             <div class="form-group">
                 <label for="">Phone number</label>
