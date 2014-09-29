@@ -14,17 +14,14 @@ $app = new \Slim\Slim(array(
 ));
 
 $app->get('/', function() use($app) { 
-    $access_token = $app->request->get('token');
-    return $app->render("index.html", array(
-        "token" => $access_token,
-    ));
+    return $app->render("index.html");
 }); 
 
 $app->post("/obtain-token/", function () use ($app) {
     $scope = $app->request->post('scope');
     $url = API::buildObtainTokenUrl(
         CLIENT_ID,
-        REDIRECT_URL,
+        REDIRECT_URI,
         explode(" ", $scope)
     );
     $app->redirect($url);
@@ -63,7 +60,6 @@ $app->get("/some", function () use ($app) {
     echo $app->request->getHost();
 });
 
-
 $app->post("/process-external/", function () use ($app) {
     $phone_number = $app->request->post("phone");
     $value = $app->request->post("value");
@@ -87,20 +83,18 @@ $app->post("/process-external/", function () use ($app) {
     // save requst_id in cache/DB/etc
     write_file("store/request_id.txt", $request_result->request_id);
 
-    $host = $app->request->getHost();
-
+    $host = $app->request->getHostWithPort();
     $process_result = $api->process(array(
         "request_id" => $request_result->request_id,
-        "ext_auth_success_uri" => "http:// " . $host . "/external-success/",
-        "ext_auth_fail_uri" => "http:// " . $host . "/external-fail/"
+        "ext_auth_success_uri" => "http://" . $host . "/external-success/",
+        "ext_auth_fail_uri" => "http://" . $host . "/external-fail/"
     ));
 
     write_file("results/request.txt", json_encode($request_result));
     write_file("results/process.txt", json_encode($process_result));
 
     $url = sprintf("%s?%s", $process_result->acs_uri,
-        http_build_query($process_result->acs_params)
-        );
+        http_build_query($process_result->acs_params));
     $app->redirect($url);
 });
 
@@ -110,13 +104,19 @@ $app->get("/external-success/", function () use ($app) {
     $instance_id = read_file("store/instance_id.txt");
 
     $api = new ExternalPayment($instance_id);
-    $host = $app->request->getHost();
+    $host = $app->request->getHostWithPort();
 
-    $result = $api->process(array(
-        "request_id" => $request_id,
-        "ext_auth_success_uri" => "http:// " . $host . "/external-success/",
-        "ext_auth_fail_uri" => "http:// " . $host . "/external-fail/"
-    ));
+    do {
+        $result = $api->process(array(
+            "request_id" => $request_id,
+            "ext_auth_success_uri" => "http://" . $host . "/external-success/",
+            "ext_auth_fail_uri" => "http://" . $host . "/external-fail/"
+        ));
+        if($result->status == "in_progress") {
+            sleep(1);
+        }
+    } while ($result->status == "in_progress");
+
     return $app->render("cards.html", array(
         "payment_result" => $result,
         "instance_id_code" =>
@@ -142,7 +142,7 @@ $app->get("/external-success/", function () use ($app) {
     ));
 });
 $app->get("/external-fail/", function () use ($app) {
-    echo "HERE";
+    echo "Some error occured";
 });
 
 function build_relative_url($redirect_url) {
@@ -235,10 +235,10 @@ function build_response($app, $account_info, $operation_history, $request_paymen
     ));
 }
 
-$app->get(build_relative_url(REDIRECT_URL), function () use($app) {
+$app->get(build_relative_url(REDIRECT_URI), function () use($app) {
     $code = $app->request->get('code');
     $access_token = API::getAccessToken(CLIENT_ID, $code,
-        REDIRECT_URL, CLIENT_SECRET)->access_token;
+        REDIRECT_URI, CLIENT_SECRET)->access_token;
 
     $api = new API($access_token);
     $account_info = $api->accountInfo();

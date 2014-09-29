@@ -1,7 +1,8 @@
+$host = $app->request->getHostWithPort();
 $process_result = $api->process(array(
     "request_id" => $request_result->request_id,
-    "ext_auth_success_uri" => "http://localhost:8000/external-success/",
-    "ext_auth_fail_uri" => "http://localhost:8000/external-fail/"
+    "ext_auth_success_uri" => "http://" . $host . "/external-success/",
+    "ext_auth_fail_uri" => "http://" . $host . "/external-fail/"
 ));
 
 $url = sprintf("%s?%s", $process_result->acs_uri,
