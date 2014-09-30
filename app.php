@@ -7,6 +7,8 @@ use \YandexMoney\ExternalPayment;
 
 require_once "constants.php";
 
+date_default_timezone_set("Europe/Moscow");
+
 $app = new \Slim\Slim(array(
     "debug" => true,
     "templates.path" => "./views",
@@ -61,12 +63,15 @@ $app->get("/some", function () use ($app) {
 });
 
 $app->post("/process-external/", function () use ($app) {
+    $cookie_expired = "20 minutes";
     $phone_number = $app->request->post("phone");
     $value = $app->request->post("value");
 
     $instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
-    write_file("store/instance_id.txt", $instance_id_json->instance_id);
-    write_file("results/instance_id.txt", json_encode($instance_id_json));
+    $app->setCookie("instance_id", $instance_id_json->instance_id,
+        $cookie_expired, "/");
+    $app->setCookie("result/instance_id", json_encode($instance_id_json),
+        $cookie_expired, "/");
 
     $instance_id = $instance_id_json->instance_id;
     $api = new ExternalPayment($instance_id);
@@ -80,8 +85,8 @@ $app->post("/process-external/", function () use ($app) {
     if($request_result->status != "success") {
         return show_error($request_result, $app);
     }
-    // save requst_id in cache/DB/etc
-    write_file("store/request_id.txt", $request_result->request_id);
+    $app->setCookie("request_id", $request_result->request_id,
+        $cookie_expired, "/");
 
     $host = $app->request->getHostWithPort();
     $process_result = $api->process(array(
@@ -90,8 +95,10 @@ $app->post("/process-external/", function () use ($app) {
         "ext_auth_fail_uri" => "http://" . $host . "/external-fail/"
     ));
 
-    write_file("results/request.txt", json_encode($request_result));
-    write_file("results/process.txt", json_encode($process_result));
+    $app->setCookie("result/request", json_encode($request_result),
+        $cookie_expired, "/");
+    $app->setCookie("result/process", json_encode($process_result),
+        $cookie_expired, "/");
 
     $url = sprintf("%s?%s", $process_result->acs_uri,
         http_build_query($process_result->acs_params));
@@ -100,8 +107,12 @@ $app->post("/process-external/", function () use ($app) {
 
 $app->get("/external-success/", function () use ($app) {
 
-    $request_id = read_file("store/request_id.txt");
-    $instance_id = read_file("store/instance_id.txt");
+    $request_id = $app->getCookie("request_id");
+    $instance_id = $app->getCookie("instance_id");
+    if(is_null($request_id) || is_null($instance_id)) {
+        return show_error(
+            array("sample_error" => "cookie is expired or incorrect"), $app);
+    }
 
     $api = new ExternalPayment($instance_id);
     $host = $app->request->getHostWithPort();
@@ -117,6 +128,10 @@ $app->get("/external-success/", function () use ($app) {
         }
     } while ($result->status == "in_progress");
 
+    $get_cookie_json = function ($cookie_name) use ($app) {
+        return json_decode($app->getCookie($cookie_name));
+    };
+
     return $app->render("cards.html", array(
         "payment_result" => $result,
         "instance_id_code" =>
@@ -128,9 +143,9 @@ $app->get("/external-success/", function () use ($app) {
         "process_code2" =>
             read_file("code_samples/external_payment/process_payment2.txt"),
         "responses" => array(
-            "instance_id" => read_file("results/instance_id.txt", true),
-            "request" => read_file("results/request.txt", true),
-            "process1" => read_file("results/process.txt", true),
+            "instance_id" => $get_cookie_json("result/instance_id"),
+            "request" => $get_cookie_json("result/request"),
+            "process1" => $get_cookie_json("result/process"),
             "process2" => $result
         ),
         "json_format_options" => JSON_PRETTY_PRINT

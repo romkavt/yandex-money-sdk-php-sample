@@ -1,9 +1,9 @@
-// load saved instance_id and request_id
-$request_id = read_file("request_id.txt");
-$instance_id = read_file("instance_id.txt");
+$request_id = $app->getCookie("request_id");
+$instance_id = $app->getCookie("instance_id");
 
 $api = new ExternalPayment($instance_id);
 $host = $app->request->getHostWithPort();
+
 do {
     $result = $api->process(array(
         "request_id" => $request_id,

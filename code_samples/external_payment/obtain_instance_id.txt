@@ -1,8 +1,13 @@
+$cookie_expired = "20 minutes";
 $phone_number = $app->request->post("phone");
 $value = $app->request->post("value");
 
 $instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
-write_file("store/instance_id.txt", $instance_id_json->instance_id);
+$app->setCookie("instance_id", $instance_id_json->instance_id,
+    $cookie_expired, "/");
+$app->setCookie("result/instance_id", json_encode($instance_id_json),
+    $cookie_expired, "/");
 
 $instance_id = $instance_id_json->instance_id;
 $api = new ExternalPayment($instance_id);
+// check response
