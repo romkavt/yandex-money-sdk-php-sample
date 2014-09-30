@@ -163,10 +163,7 @@ $app->get("/external-fail/", function () use ($app) {
 function build_relative_url($redirect_url) {
     $exploded_url = explode('/', $redirect_url);
     $relative_url_array = array_slice($exploded_url, 3);
-    if($relative_url_array[count($relative_url_array) - 1] == "") {
-        array_pop($relative_url_array);
-    }
-    return "/" . implode('/', $relative_url_array) . "/";
+    return "/" . implode('/', $relative_url_array);
 }
 
 function read_sample($sample_path) {
