@@ -47,7 +47,7 @@
     <p>You can check out docs <a href="http://api.yandex.com/money/doc/dg/concepts/About.xml">in English</a> and <a href="http://api.yandex.ru/money/doc/dg/concepts/About.xml">in Russian</a>.</p>
     {% block result %}
         <h3>Payments from the Yandex.Money wallet</h3>
-        <form action="/obtain-token/" method="POST">
+        <form action="obtain-token/" method="POST">
             <label>Scope</label>
             <p><input readonly class="form-control" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
             <p><button class="btn btn-primary" type="submit">Obtain token</button></p>
@@ -57,7 +57,7 @@
 
         <h3>Payments from bank cards without authorization</h3>
         Make a payment to phone number
-        <form action="/process-external/" method="POST">
+        <form action="process-external/" method="POST">
             <div class="form-group">
                 <label for="">Phone number</label>
                 <input type="text" class="form-control" name="phone" placeholder="Phone number for payment. For example: 79233630564">

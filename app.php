@@ -89,10 +89,15 @@ $app->post("/process-external/", function () use ($app) {
         $cookie_expired, "/");
 
     $host = $app->request->getHostWithPort();
+    $base_path =
+        "http://"
+        . $app->request->getHostWithPort()
+        . $app->request->getPath()
+        . "..";
     $process_result = $api->process(array(
         "request_id" => $request_result->request_id,
-        "ext_auth_success_uri" => "http://" . $host . "/external-success/",
-        "ext_auth_fail_uri" => "http://" . $host . "/external-fail/"
+        "ext_auth_success_uri" => $base_path . "/external-success/",
+        "ext_auth_fail_uri" => $base_path . "/external-fail/"
     ));
 
     $app->setCookie("result/request", json_encode($request_result),
@@ -115,13 +120,17 @@ $app->get("/external-success/", function () use ($app) {
     }
 
     $api = new ExternalPayment($instance_id);
-    $host = $app->request->getHostWithPort();
+    $base_path =
+        "http://"
+        . $app->request->getHostWithPort()
+        . $app->request->getPath()
+        . "..";
 
     do {
         $result = $api->process(array(
             "request_id" => $request_id,
-            "ext_auth_success_uri" => "http://" . $host . "/external-success/",
-            "ext_auth_fail_uri" => "http://" . $host . "/external-fail/"
+            "ext_auth_success_uri" => $base_path . "/external-success/",
+            "ext_auth_fail_uri" => $base_path . "/external-fail/"
         ));
         if($result->status == "in_progress") {
             sleep(1);
@@ -160,9 +169,12 @@ $app->get("/external-fail/", function () use ($app) {
     echo "Some error occured";
 });
 
-function build_relative_url($redirect_url) {
+// var_dump($app->environment()['SCRIPT_NAME']);
+
+function build_relative_url($redirect_url, $script_name) {
     $exploded_url = explode('/', $redirect_url);
-    $relative_url_array = array_slice($exploded_url, 3);
+    $relative_url_array = array_slice($exploded_url,
+        3 + count(explode('/', $script_name)) - 1);
     return "/" . implode('/', $relative_url_array);
 }
 
@@ -247,7 +259,8 @@ function build_response($app, $account_info, $operation_history, $request_paymen
     ));
 }
 
-$app->get(build_relative_url(REDIRECT_URI), function () use($app) {
+$app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
+        function () use($app) {
     $code = $app->request->get('code');
     $access_token = API::getAccessToken(CLIENT_ID, $code,
         REDIRECT_URI, CLIENT_SECRET)->access_token;
