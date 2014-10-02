@@ -47,7 +47,9 @@
             </a>
             {% endblock %}
             <h2>Yandex.Money PHP sample</h2>
-        </div>
+            {% block breadcrumbs %}
+            {% endblock %}
+      </div>
     <p>You can check out docs <a href="http://api.yandex.com/money/doc/dg/concepts/About.xml">in English</a> and <a href="http://api.yandex.ru/money/doc/dg/concepts/About.xml">in Russian</a>.</p>
     {% block result %}
         <h3>Payments from the Yandex.Money wallet</h3>

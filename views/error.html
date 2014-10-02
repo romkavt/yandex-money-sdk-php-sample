@@ -6,6 +6,13 @@
 </a>
 {% endblock %}
 
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+  <li><a href="../">Home</a></li>
+  <li class="active">Error</li>
+</ol>
+{% endblock %}
+
 {% block result %}
     Something went wrong. The response is 
     <pre><code class="json">{{ response|json_encode(json_format_options) }}</code></pre>
