@@ -255,7 +255,8 @@ function build_response($app, $account_info, $operation_history, $request_paymen
             | JSON_HEX_TAG
             | JSON_HEX_QUOT
             | JSON_HEX_AMP
-            | JSON_UNESCAPED_UNICODE
+            | JSON_UNESCAPED_UNICODE,
+        "parent_url" => $app->environment['SCRIPT_NAME']
     ));
 }
 

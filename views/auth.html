@@ -1,14 +1,14 @@
 {% extends 'index.html' %}
 
 {% block logo %}
-<a href="../">
+<a href="{{ parent_url }}/">
     <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
 </a>
 {% endblock %}
 
 {% block breadcrumbs %}
 <ol class="breadcrumb">
-  <li><a href="../">Home</a></li>
+  <li><a href="{{ parent_url }}/">Home</a></li>
   <li class="active">Wallet</li>
 </ol>
 {% endblock %}
