@@ -41,7 +41,11 @@
 <body>
     <div class="container">
         <div class="header clearfix">
-            <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
+            {% block logo %}
+            <a href="">
+                <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
+            </a>
+            {% endblock %}
             <h2>Yandex.Money PHP sample</h2>
         </div>
     <p>You can check out docs <a href="http://api.yandex.com/money/doc/dg/concepts/About.xml">in English</a> and <a href="http://api.yandex.ru/money/doc/dg/concepts/About.xml">in Russian</a>.</p>
@@ -49,7 +53,7 @@
         <h3>Payments from the Yandex.Money wallet</h3>
         <form action="obtain-token/" method="POST">
             <label>Scope</label>
-            <p><input readonly class="form-control" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1) incoming-transfers'/></p>
+            <p><input readonly class="form-control" type="text" name="scope" value='account-info operation-history payment.to-account("410011161616877").limit(30,1)'/></p>
             <p><button class="btn btn-primary" type="submit">Obtain token</button></p>
         </form>
         <p>Documentation about scope permissions is <a href="http://api.yandex.ru/money/doc/dg/concepts/protocol-rights.xml">here</a>.</p>

@@ -262,10 +262,12 @@ function build_response($app, $account_info, $operation_history, $request_paymen
 $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
         function () use($app) {
     $code = $app->request->get('code');
-    $access_token = API::getAccessToken(CLIENT_ID, $code,
-        REDIRECT_URI, CLIENT_SECRET)->access_token;
-
-    $api = new API($access_token);
+    $result = API::getAccessToken(CLIENT_ID, $code,
+        REDIRECT_URI, CLIENT_SECRET);
+    if(property_exists($result, "error")) {
+        return show_error($result, $app);
+    }
+    $api = new API($result->access_token);
     $account_info = $api->accountInfo();
     $operation_history = $api->operationHistory(array("records"=>3));
     $request_payment = $api->requestPayment(array(
