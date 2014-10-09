@@ -6,6 +6,8 @@ use \YandexMoney\API;
 use \YandexMoney\ExternalPayment;
 
 require_once "constants.php";
+require_once "utils.php";
+require_once "external_wallet.php";
 
 date_default_timezone_set("Europe/Moscow");
 
@@ -28,11 +30,6 @@ $app->post("/obtain-token/", function () use ($app) {
     );
     $app->redirect($url);
 });
-function write_file($filename, $content) {
-    $file = fopen($filename, "w");
-    fwrite($file, $content);
-    fclose($file);
-}
 function read_file($filename, $as_json=false) {
     $file = fopen($filename, "r");
     $content = fread($file,filesize($filename));
@@ -43,18 +40,6 @@ function read_file($filename, $as_json=false) {
     else {
         return $content;
     }
-
-}
-
-function show_error($result, $app) {
-        return $app->render("error.html", array(
-            "json_format_options" => JSON_PRETTY_PRINT
-                | JSON_HEX_TAG
-                | JSON_HEX_QUOT
-                | JSON_HEX_AMP
-                | JSON_UNESCAPED_UNICODE,
-            "response" => $result
-        ));
 
 }
 
@@ -321,5 +306,7 @@ $app->get("/debug/", function () use($app) {
     return build_response($app, $account_info, $operation_history, $request_payment,
         $process_payment);
 });
+
+external_wallet($app);
 $app->run(); 
 

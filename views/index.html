@@ -62,6 +62,7 @@
         <strong>Note:</strong> Take care that HOST of the sample app MUST be equal to host of REDIRECT_URI(constants.php).
 
         <h3>Payments from bank cards without authorization</h3>
+        <h4>Mobile phone</h4>
         Make a payment to phone number
         <form action="process-external/" method="POST">
             <div class="form-group">
@@ -78,6 +79,18 @@
             <strong>Note:</strong> Phone number in ITU-T E.164 format: the full number, starting with 7.
 Only numbers from mobile service providers in Russia are supported. Example: 79219990099
         </p>
+        <h4>To wallet</h4>
+        <form action="wallet/process-external/" method="POST">
+            <div class="form-group">
+                <label for="">Wallet</label>
+                <input type="text" class="form-control" name="wallet" placeholder="" value="410012514683192">
+            </div>
+            <div class="form-group">
+                <label for="">Value(RUB)</label>
+                <input type="text" class="form-control" name="value" placeholder="1" value="1">
+            </div>
+            <p><button class="btn btn-primary" type="submit">Pay with card</button></p>
+        </form>
     {% endblock %}
     </div>
     <script>

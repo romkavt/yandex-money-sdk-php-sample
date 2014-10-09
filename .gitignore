@@ -1,3 +1,4 @@
+*.sw*
 *.lock
 *.ini
 constants.php
