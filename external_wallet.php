@@ -28,6 +28,7 @@ function external_wallet($app) {
             "pattern_id" => "p2p",
             "to" => $wallet,
             "amount_due" => $value,
+            //"fee_type" => "forms",
             "comment" => "sample test payment",
             "message" => "sample test payment",
         ));
@@ -45,8 +46,8 @@ function external_wallet($app) {
             . "..";
         $process_result = $api->process(array(
             "request_id" => $request_result->request_id,
-            "ext_auth_success_uri" => $base_path . "/wallet/external-success/",
-            "ext_auth_fail_uri" => $base_path . "/wallet/external-fail/"
+            "ext_auth_success_uri" => $base_path . "/external-success/",
+            "ext_auth_fail_uri" => $base_path . "/external-fail/"
         ));
 
         $app->setCookie("result/request", json_encode($request_result),
@@ -77,9 +78,10 @@ function external_wallet($app) {
         do {
             $result = $api->process(array(
                 "request_id" => $request_id,
-                "ext_auth_success_uri" => $base_path . "/wallet/external-success/",
-                "ext_auth_fail_uri" => $base_path . "/wallet/external-fail/"
+                "ext_auth_success_uri" => $base_path . "/external-success/",
+                "ext_auth_fail_uri" => $base_path . "/external-fail/"
             ));
+            var_dump($result);
             if($result->status == "in_progress") {
                 sleep(1);
             }
