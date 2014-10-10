@@ -151,7 +151,10 @@ $app->get("/external-success/", function () use ($app) {
     ));
 });
 $app->get("/external-fail/", function () use ($app) {
-    echo "Some error occured";
+    $error = array( 
+        "info" => "Check out GET params for additional information"
+    );
+    return show_error($error, $app);
 });
 
 // var_dump($app->environment()['SCRIPT_NAME']);

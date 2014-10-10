@@ -1,0 +1,13 @@
+$cookie_expired = "20 minutes";
+$wallet = $app->request->post("wallet");
+$value = $app->request->post("value");
+
+$instance_id_json = ExternalPayment::getInstanceId(CLIENT_ID);
+$app->setCookie("instance_id", $instance_id_json->instance_id,
+    $cookie_expired, "/");
+$app->setCookie("result/instance_id", json_encode($instance_id_json),
+    $cookie_expired, "/");
+
+$instance_id = $instance_id_json->instance_id;
+$api = new ExternalPayment($instance_id);
+// check response

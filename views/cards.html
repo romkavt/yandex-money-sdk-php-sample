@@ -18,7 +18,7 @@
 <h3>Payment result</h3>
 <p>
     The status of payment is <code>{{ payment_result.status }}</code>.
-    {% if payment_result.status == "success" %}
+    {% if payment_result.status == "success" and payment_result.invoice_id %}
         Invoice id is <code>{{ payment_result.invoice_id }}</code>
     {% endif %}
 </p>

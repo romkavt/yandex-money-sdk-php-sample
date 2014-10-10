@@ -1,0 +1,11 @@
+$request_result = $api->request(array(
+    "pattern_id" => "p2p",
+    "to" => $wallet,
+    "amount_due" => $value,
+    "comment" => "sample test payment",
+    "message" => "sample test payment",
+));
+if($request_result->status != "success") {
+    return show_error($request_result, $app);
+}
+$app->setCookie("request_id", $request_result->request_id, $cookie_expired, "/");

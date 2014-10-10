@@ -28,7 +28,6 @@ function external_wallet($app) {
             "pattern_id" => "p2p",
             "to" => $wallet,
             "amount_due" => $value,
-            //"fee_type" => "forms",
             "comment" => "sample test payment",
             "message" => "sample test payment",
         ));
@@ -81,7 +80,6 @@ function external_wallet($app) {
                 "ext_auth_success_uri" => $base_path . "/external-success/",
                 "ext_auth_fail_uri" => $base_path . "/external-fail/"
             ));
-            var_dump($result);
             if($result->status == "in_progress") {
                 sleep(1);
             }
@@ -94,13 +92,13 @@ function external_wallet($app) {
         return $app->render("cards.html", array(
             "payment_result" => $result,
             "instance_id_code" =>
-                read_file("code_samples/external_payment/obtain_instance_id.txt"),
+                read_file("code_samples/external_payment/wallet/obtain_instance_id.txt"),
             "request_code" =>
-                read_file("code_samples/external_payment/request_payment.txt"),
+                read_file("code_samples/external_payment/wallet/request_payment.txt"),
             "process_code" =>
-                read_file("code_samples/external_payment/process_payment.txt"),
+                read_file("code_samples/external_payment/wallet/process_payment.txt"),
             "process_code2" =>
-                read_file("code_samples/external_payment/process_payment2.txt"),
+                read_file("code_samples/external_payment/wallet/process_payment2.txt"),
             "responses" => array(
                 "instance_id" => $get_cookie_json("result/instance_id"),
                 "request" => $get_cookie_json("result/request"),
@@ -113,6 +111,15 @@ function external_wallet($app) {
                 | JSON_HEX_AMP
                 | JSON_UNESCAPED_UNICODE
         ));
+    });
+    $app->get("/wallet/external-fail/", function () use ($app) {
+        $error = array( 
+            "info" => "Check out GET params for additional information"
+        );
+        return show_error($error, $app);
+    });
+    $app->get("/wallet/", function () use ($app) {
+        $app->redirect("../");
     });
 }
 

@@ -1,0 +1,11 @@
+$host = $app->request->getHostWithPort();
+$process_result = $api->process(array(
+    "request_id" => $request_result->request_id,
+    "ext_auth_success_uri" => "http://" . $host . "/wallet/external-success/",
+    "ext_auth_fail_uri" => "http://" . $host . "/wallet/external-fail/"
+));
+
+$url = sprintf("%s?%s", $process_result->acs_uri,
+    http_build_query($process_result->acs_params)
+    );
+// redirect user to $url
