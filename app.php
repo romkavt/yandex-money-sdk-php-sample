@@ -266,7 +266,8 @@ $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
         "comment" => "test payment comment from yandex-money-php",
         "message" => "test payment message from yandex-money-php",
         "label" => "testPayment",
-        "test_payment" => true
+        "test_payment" => "true",
+        "test_result" => "success" 
     ));
     if($request_payment->status !== "success") {
         $process_payment = array();
@@ -274,7 +275,8 @@ $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
     else {
         $process_payment = $api->processPayment(array(
             "request_id" => $request_payment->request_id,
-            "test_payment" => true
+            "test_payment" => "true",
+            "test_result" => "success" 
         ));
     }
     return build_response($app, $account_info, $operation_history,
