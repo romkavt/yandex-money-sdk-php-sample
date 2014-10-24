@@ -1,14 +1,11 @@
 <?php
 
-function show_error($result, $app) {
-        return $app->render("error.html", array(
-            "json_format_options" => JSON_PRETTY_PRINT
-                | JSON_HEX_TAG
-                | JSON_HEX_QUOT
-                | JSON_HEX_AMP
-                | JSON_UNESCAPED_UNICODE,
-            "response" => $result
-        ));
+function show_error($params, $app) {
+    return $app->render("error.html", array(
+        "text" => $params['text'],
+        "home" => $params['home'],
+        "lang" => "PHP"
+    ));
 }
 
 function read_sample($sample_path) {
@@ -26,4 +23,10 @@ function build_relative_url($redirect_url, $script_name) {
         3 + count(explode('/', $script_name)) - 1);
     return "/" . implode('/', $relative_url_array);
 }
+
+define("JSON_OPTIONS", JSON_PRETTY_PRINT
+    | JSON_HEX_TAG
+    | JSON_HEX_QUOT
+    | JSON_HEX_AMP
+    | JSON_UNESCAPED_UNICODE);
 

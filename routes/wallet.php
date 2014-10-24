@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . "/../utils.php";
+require_once __DIR__ . "/../utils.php";
 use \YandexMoney\API;
 use \YandexMoney\ExternalPayment;
 
@@ -48,12 +48,7 @@ function build_response($app, $account_info, $operation_history, $request_paymen
                 "is_collapsed" => true,
                 "title" => "Response",
                 "id" => $index + 100,
-                "body" => json_encode($method['response'], JSON_PRETTY_PRINT
-                    | JSON_HEX_TAG
-                    | JSON_HEX_QUOT
-                    | JSON_HEX_AMP
-                    | JSON_UNESCAPED_UNICODE
-                )
+                "body" => json_encode($method['response'], JSON_OPTIONS)
             )
         );
         return $method;
@@ -62,7 +57,7 @@ function build_response($app, $account_info, $operation_history, $request_paymen
     $methods = array(
         array(
             "info" => sprintf("You wallet balance is %s RUB",
-            $account_info->balance),
+                $account_info->balance),
             "code" => read_sample("account_info"),
             "name" => "Account-info",
             "response" => $account_info
@@ -103,7 +98,12 @@ $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
     $result = API::getAccessToken(CLIENT_ID, $code,
         REDIRECT_URI, CLIENT_SECRET);
     if(property_exists($result, "error")) {
-        return show_error($result, $app);
+        $script_name = $app->environment['SCRIPT_NAME'];
+        $params= array(
+            "text" => json_encode($result, JSON_OPTIONS),
+            "home" => str_repeat("../", count(explode('/', $script_name)))
+        );
+        return show_error($params, $app);
     }
     $api = new API($result->access_token);
     $account_info = $api->accountInfo();

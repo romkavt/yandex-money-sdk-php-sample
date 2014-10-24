@@ -15,12 +15,7 @@ function template_meta($method, $index) {
             "is_collapsed" => true,
             "title" => "Response",
             "id" => $index + 100,
-            "body" => json_encode($method['response'], JSON_PRETTY_PRINT
-                | JSON_HEX_TAG
-                | JSON_HEX_QUOT
-                | JSON_HEX_AMP
-                | JSON_UNESCAPED_UNICODE
-            )
+            "body" => json_encode($method['response'], JSON_OPTIONS)
         )
     );
 };
@@ -46,7 +41,11 @@ $app->post("/process-external/", function () use ($app) {
         "amount" => $value
     ));
     if($request_result->status != "success") {
-        return show_error($request_result, $app);
+        $params = array(
+            "text" => json_encode($request_result, JSON_OPTIONS),
+            "home" => "../"
+        );
+        return show_error($params, $app);
     }
     $app->setCookie("request_id", $request_result->request_id,
         $cookie_expired, "/");
@@ -78,8 +77,11 @@ $app->get("/external-success/", function () use ($app) {
     $request_id = $app->getCookie("request_id");
     $instance_id = $app->getCookie("instance_id");
     if(is_null($request_id) || is_null($instance_id)) {
-        return show_error(
-            array("sample_error" => "cookie is expired or incorrect"), $app);
+        $params = array(
+            "text" => "cookie is expired or incorrect",
+            "home" => "../"
+        );
+        return show_error(params, $app);
     }
 
     $api = new ExternalPayment($instance_id);
@@ -152,7 +154,11 @@ $app->post("/wallet/process-external/", function () use($app) {
         "message" => "sample test payment",
     ));
     if($request_result->status != "success") {
-        return show_error($request_result, $app);
+        $params = array(
+            "text" => json_encode($request_result, JSON_OPTIONS),
+            "home" => "../"
+        );
+        return show_error($params, $app);
     }
     $app->setCookie("request_id", $request_result->request_id,
         $cookie_expired, "/");
@@ -165,7 +171,7 @@ $app->post("/wallet/process-external/", function () use($app) {
     $process_result = $api->process(array(
         "request_id" => $request_result->request_id,
         "ext_auth_success_uri" => $base_path . "/external-success/",
-        "ext_auth_fail_uri" => $base_path . "/external-fail/"
+        "ext_auth_fail_uri" => $base_path . "/../external-fail/"
     ));
 
     $app->setCookie("result/request", json_encode($request_result),
@@ -182,8 +188,11 @@ $app->get("/wallet/external-success/", function () use ($app) {
     $request_id = $app->getCookie("request_id");
     $instance_id = $app->getCookie("instance_id");
     if(is_null($request_id) || is_null($instance_id)) {
-        return show_error(
-            array("sample_error" => "cookie is expired or incorrect"), $app);
+        $params = array(
+            "text" => "cookie is expired or incorrect",
+            "home" => "../"
+        );
+        return show_error(params, $app);
     }
 
     $api = new ExternalPayment($instance_id);
@@ -197,7 +206,7 @@ $app->get("/wallet/external-success/", function () use ($app) {
         $result = $api->process(array(
             "request_id" => $request_id,
             "ext_auth_success_uri" => $base_path . "/external-success/",
-            "ext_auth_fail_uri" => $base_path . "/external-fail/"
+            "ext_auth_fail_uri" => $base_path . "/../external-fail/"
         ));
         if($result->status == "in_progress") {
             sleep(1);
@@ -234,10 +243,11 @@ $app->get("/wallet/external-success/", function () use ($app) {
     ));
 });
 $app->get("/wallet/external-fail/", function () use ($app) {
-    $error = array( 
-        "info" => "Check out GET params for additional information"
+    $params = array( 
+        "text" => "Check out GET params for additional information",
+        "home" => "../../"
     );
-    return show_error($error, $app);
+    return show_error($params, $app);
 });
 $app->get("/wallet/", function () use ($app) {
     $app->redirect("../");
