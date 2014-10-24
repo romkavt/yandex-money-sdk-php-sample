@@ -37,7 +37,6 @@ function external_wallet($app) {
         $app->setCookie("request_id", $request_result->request_id,
             $cookie_expired, "/");
 
-        $host = $app->request->getHostWithPort();
         $base_path =
             "http://"
             . $app->request->getHostWithPort()
@@ -88,28 +87,51 @@ function external_wallet($app) {
         $get_cookie_json = function ($cookie_name) use ($app) {
             return json_decode($app->getCookie($cookie_name));
         };
+        $template_meta = function ($method, $index) {
+            return array(
+                array(
+                    "is_collapsed" => false,
+                    "title" => "Source code",
+                    "id" => $index,
+                    "body" => $method['code']
+                ),
+                array(
+                    "is_collapsed" => true,
+                    "title" => "Response",
+                    "id" => $index + 100,
+                    "body" => json_encode($method['response'], JSON_PRETTY_PRINT
+                        | JSON_HEX_TAG
+                        | JSON_HEX_QUOT
+                        | JSON_HEX_AMP
+                        | JSON_UNESCAPED_UNICODE
+                    )
+                )
+            );
+        };
 
+        $codesamples_base = "code_samples/external_payment/wallet/";
         return $app->render("cards.html", array(
             "payment_result" => $result,
-            "instance_id_code" =>
-                read_file("code_samples/external_payment/wallet/obtain_instance_id.txt"),
-            "request_code" =>
-                read_file("code_samples/external_payment/wallet/request_payment.txt"),
-            "process_code" =>
-                read_file("code_samples/external_payment/wallet/process_payment.txt"),
-            "process_code2" =>
-                read_file("code_samples/external_payment/wallet/process_payment2.txt"),
-            "responses" => array(
-                "instance_id" => $get_cookie_json("result/instance_id"),
-                "request" => $get_cookie_json("result/request"),
-                "process1" => $get_cookie_json("result/process"),
-                "process2" => $result
+            "panels" => array(
+                "instance_id" => $template_meta(array(
+                    "code" => read_file($codesamples_base . "obtain_instance_id.txt"),
+                    "response" => $get_cookie_json("result/instance_id")
+                ), 1),
+                "request_payment" => $template_meta(array(
+                    "code" => read_file($codesamples_base . "obtain_instance_id.txt"),
+                    "response" => $get_cookie_json("result/request")
+                ), 2),
+                "process_payment1" => $template_meta(array(
+                    "code" => read_file($codesamples_base . "obtain_instance_id.txt"),
+                    "response" => $get_cookie_json("result/process")
+                ), 3),
+                "process_payment2" => $template_meta(array(
+                    "code" => read_file($codesamples_base . "obtain_instance_id.txt"),
+                    "response" => $result
+                ), 4)
             ),
-            "json_format_options" => JSON_PRETTY_PRINT
-                | JSON_HEX_TAG
-                | JSON_HEX_QUOT
-                | JSON_HEX_AMP
-                | JSON_UNESCAPED_UNICODE
+            "home" => "../../",
+            "lang" => "PHP"
         ));
     });
     $app->get("/wallet/external-fail/", function () use ($app) {

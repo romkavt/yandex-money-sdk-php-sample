@@ -263,7 +263,8 @@ function build_response($app, $account_info, $operation_history, $request_paymen
 
     return $app->render("auth.html", array(
         "methods" => array_map($template_meta, $methods, array_keys($methods)),
-        "home" => $app->environment['SCRIPT_NAME']
+        "home" => $app->environment['SCRIPT_NAME'],
+        "lang" => "PHP"
     ));
 }
 
