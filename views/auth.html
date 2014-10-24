@@ -1,14 +1,18 @@
 {% extends 'index.html' %}
 
+{% block lang %}
+{{ lang }}
+{% endblock %}
+
 {% block logo %}
-<a href="{{ parent_url }}/">
+<a href="{{ home }}/">
     <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
 </a>
 {% endblock %}
 
 {% block breadcrumbs %}
 <ol class="breadcrumb">
-  <li><a href="{{ parent_url }}/">Home</a></li>
+  <li><a href="{{ home }}/">Home</a></li>
   <li class="active">Wallet</li>
 </ol>
 {% endblock %}
@@ -22,10 +26,9 @@
 {% if method.is_error %}
 <div class="alert alert-danger" role="alert"><strong>Error! </strong>{{ method.message }}</div>
 {% else %}
-  {% include 'helpers/panel_source.html' with
-      {'title': "Source code", 'body': method.code, 'id': 100 + loop.index } only %}
-  {% include 'helpers/panel_source.html' with
-      {'title': "Response", 'body': method.response|json_encode(json_format_options), 'id': loop.index, "is_collapsed": true } only %}
+    {% for panel in method.includes %} 
+          {% include 'helpers/panel_source.html' %}
+    {% endfor %}
 {% endif %}
 {% endfor %}
     

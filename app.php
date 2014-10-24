@@ -174,7 +174,6 @@ function read_sample($sample_path) {
     fclose($file);
     return $content;
 }
-
 function build_response($app, $account_info, $operation_history, $request_payment,
     $process_payment) {
 
@@ -208,43 +207,63 @@ function build_response($app, $account_info, $operation_history, $request_paymen
             $process_payment->payee);
     }
 
-    return $app->render("auth.html", array(
-        "methods" => array(
+    $template_meta = function ($method, $index) {
+        $method['includes'] = array(
             array(
-                "info" => sprintf("You wallet balance is %s RUB",
-                    $account_info->balance),
-                "code" => read_sample("account_info"),
-                "name" => "Account-info",
-                "response" => $account_info
+                "is_collapsed" => false,
+                "title" => "Source code",
+                "id" => $index,
+                "body" => $method['code']
             ),
             array(
-                "info" => $operation_history_info,
-                "code" => read_sample("operation_history"),
-                "name" => "Operation-history",
-                "response" => $operation_history
-            ),
-            array(
-                "info" => $request_payment_info,
-                "code" => read_sample("request_payment"),
-                "name" => "Request-payment",
-                "response" => $request_payment
-            ),
-            array(
-                "info" => $process_payment_info,
-                "code" => read_sample("process_payment"),
-                "name" => "Process-payment",
-                "response" => $process_payment,
-                "is_error" => $is_process_error,
-                "message" => "Call process_payment method isn't possible."
-                    . " See request_payment JSON for information"
+                "is_collapsed" => true,
+                "title" => "Response",
+                "id" => $index + 100,
+                "body" => json_encode($method['response'], JSON_PRETTY_PRINT
+                    | JSON_HEX_TAG
+                    | JSON_HEX_QUOT
+                    | JSON_HEX_AMP
+                    | JSON_UNESCAPED_UNICODE
+                )
             )
+        );
+        return $method;
+    };
+
+    $methods = array(
+        array(
+            "info" => sprintf("You wallet balance is %s RUB",
+            $account_info->balance),
+            "code" => read_sample("account_info"),
+            "name" => "Account-info",
+            "response" => $account_info
         ),
-        "json_format_options" => JSON_PRETTY_PRINT
-            | JSON_HEX_TAG
-            | JSON_HEX_QUOT
-            | JSON_HEX_AMP
-            | JSON_UNESCAPED_UNICODE,
-        "parent_url" => $app->environment['SCRIPT_NAME']
+        array(
+            "info" => $operation_history_info,
+            "code" => read_sample("operation_history"),
+            "name" => "Operation-history",
+            "response" => $operation_history
+        ),
+        array(
+            "info" => $request_payment_info,
+            "code" => read_sample("request_payment"),
+            "name" => "Request-payment",
+            "response" => $request_payment
+        ),
+        array(
+            "info" => $process_payment_info,
+            "code" => read_sample("process_payment"),
+            "name" => "Process-payment",
+            "response" => $process_payment,
+            "is_error" => $is_process_error,
+            "message" => "Call process_payment method isn't possible."
+            . " See request_payment JSON for information"
+        )
+    );
+
+    return $app->render("auth.html", array(
+        "methods" => array_map($template_meta, $methods, array_keys($methods)),
+        "home" => $app->environment['SCRIPT_NAME']
     ));
 }
 

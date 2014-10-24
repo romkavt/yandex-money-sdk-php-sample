@@ -1,22 +1,26 @@
 {% extends 'index.html' %}
 
+{% block lang %}
+{{ lang }}
+{% endblock %}
+
 {% block logo %}
-<a href="../">
+<a href="{{ home }}">
     <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
 </a>
 {% endblock %}
 
 {% block breadcrumbs %}
 <ol class="breadcrumb">
-  <li><a href="../">Home</a></li>
+    <li><a href="{{ home }}">Home</a></li>
   <li class="active">Error</li>
 </ol>
 {% endblock %}
 
 {% block result %}
-    Something went wrong. The response is 
-    <pre><code class="json">{{ response|json_encode(json_format_options) }}</code></pre>
+    Something went wrong:
+    <pre><code class="json">{{ text }}</code></pre>
 
-    Check your input and <a href="../">repeat request</a>
+    Check your input and <a href="{{ home }}">repeat request</a>
 
 {% endblock %}

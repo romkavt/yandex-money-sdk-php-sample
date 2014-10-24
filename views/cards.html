@@ -1,14 +1,18 @@
 {% extends 'index.html' %}
 
+{% block lang %}
+{{ lang }}
+{% endblock %}
+
 {% block logo %}
-<a href="../">
+<a href="{{ home }}">
     <img class="logo pull-left" width="50px" src="http://api.yandex.com/money/money1.png" alt="">
 </a>
 {% endblock %}
 
 {% block breadcrumbs %}
 <ol class="breadcrumb">
-  <li><a href="../">Home</a></li>
+  <li><a href="{{ home }}">Home</a></li>
   <li class="active">External payment</li>
 </ol>
 {% endblock %}
@@ -26,39 +30,28 @@
 How it works?
 <h3>Step 1. Obtain <code>instance_id</code> and init <code>ExternalPayment</code> API</h3>
 
-{% include 'helpers/panel_source.html' with
-    {'title': "Source code", 'body': instance_id_code, 'id': 1} only %}
-
-{% include 'helpers/panel_source.html' with
-    {'title': "Response", 'body': responses.instance_id|json_encode(json_format_options),
-    "id": 2, "is_collapsed": true} only %}
+{% for panel in panels.instance_id %}
+{% include 'helpers/panel_source.html' %}
+{% endfor %}
 
 <h3>Step 2. Make request payment and save <code>request_id</code></h3>
 
-{% include 'helpers/panel_source.html' with
-    {'title': "Source code", 'body': request_code, "id": 3} only %}
-
-{% include 'helpers/panel_source.html' with
-    {'title': "Response", 'body': responses.request|json_encode(json_format_options),
-    "id": 4, "is_collapsed": true} only %}
+{% for panel in panels.request_payment %}
+{% include 'helpers/panel_source.html' %}
+{% endfor %}
 
 <h3>Step 3. Call process payment and redirect user to Yandex.Money url</h3>
 
 Make sure <code>/external-success/</code> and <code>/external-fail/</code> paths are present in your app.
-{% include 'helpers/panel_source.html' with
-    {'title': "Source code", 'body': process_code, "id": 5} only %}
 
-{% include 'helpers/panel_source.html' with
-    {'title': "Response", 'body': responses.process1|json_encode(json_format_options), "id": 6,
-    "is_collapsed": true} only %}
+{% for panel in panels.process_payment1 %}
+{% include 'helpers/panel_source.html' %}
+{% endfor %}
 
 <h3>Step 4. Repeat <code>process payment</code> for status checking</h3>
 
-{% include 'helpers/panel_source.html' with
-    {'title': "Source code", 'body': process_code2, "id": 7} only %}
-
-{% include 'helpers/panel_source.html' with
-    {'title': "Response", 'body': responses.process2|json_encode(json_format_options),
-    "id": 8, "is_collapsed": true} only %}
+{% for panel in panels.process_payment2 %}
+{% include 'helpers/panel_source.html' %}
+{% endfor %}
 
 {% endblock %}
