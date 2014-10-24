@@ -81,7 +81,7 @@ $app->get("/external-success/", function () use ($app) {
             "text" => "cookie is expired or incorrect",
             "home" => "../"
         );
-        return show_error(params, $app);
+        return show_error($params, $app);
     }
 
     $api = new ExternalPayment($instance_id);
@@ -192,7 +192,7 @@ $app->get("/wallet/external-success/", function () use ($app) {
             "text" => "cookie is expired or incorrect",
             "home" => "../"
         );
-        return show_error(params, $app);
+        return show_error($params, $app);
     }
 
     $api = new ExternalPayment($instance_id);

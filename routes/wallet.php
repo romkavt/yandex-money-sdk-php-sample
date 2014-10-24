@@ -4,7 +4,7 @@ use \YandexMoney\API;
 use \YandexMoney\ExternalPayment;
 
 function build_response($app, $account_info, $operation_history, $request_payment,
-    $process_payment) {
+    $process_payment, $home) {
 
     if(count($operation_history->operations) < 3) {
         $operation_history_info =  sprintf(
@@ -58,25 +58,25 @@ function build_response($app, $account_info, $operation_history, $request_paymen
         array(
             "info" => sprintf("You wallet balance is %s RUB",
                 $account_info->balance),
-            "code" => read_sample("account_info"),
+            "code" => read_sample("account_info.txt"),
             "name" => "Account-info",
             "response" => $account_info
         ),
         array(
             "info" => $operation_history_info,
-            "code" => read_sample("operation_history"),
+            "code" => read_sample("operation_history.txt"),
             "name" => "Operation-history",
             "response" => $operation_history
         ),
         array(
             "info" => $request_payment_info,
-            "code" => read_sample("request_payment"),
+            "code" => read_sample("request_payment.txt"),
             "name" => "Request-payment",
             "response" => $request_payment
         ),
         array(
             "info" => $process_payment_info,
-            "code" => read_sample("process_payment"),
+            "code" => read_sample("process_payment.txt"),
             "name" => "Process-payment",
             "response" => $process_payment,
             "is_error" => $is_process_error,
@@ -87,7 +87,7 @@ function build_response($app, $account_info, $operation_history, $request_paymen
 
     return $app->render("auth.html", array(
         "methods" => array_map($template_meta, $methods, array_keys($methods)),
-        "home" => $app->environment['SCRIPT_NAME'],
+        "home" => substr_replace($home, "", -1), // remove last char
         "lang" => "PHP"
     ));
 }
@@ -97,11 +97,15 @@ $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
     $code = $app->request->get('code');
     $result = API::getAccessToken(CLIENT_ID, $code,
         REDIRECT_URI, CLIENT_SECRET);
+
+    $script_name = $app->environment['SCRIPT_NAME'];
+    $home = str_repeat("../", count(explode('/', $script_name)));
+
     if(property_exists($result, "error")) {
         $script_name = $app->environment['SCRIPT_NAME'];
         $params= array(
             "text" => json_encode($result, JSON_OPTIONS),
-            "home" => str_repeat("../", count(explode('/', $script_name)))
+            "home" => $home
         );
         return show_error($params, $app);
     }
@@ -129,5 +133,5 @@ $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
         ));
     }
     return build_response($app, $account_info, $operation_history,
-        $request_payment, $process_payment);
+        $request_payment, $process_payment, $home);
 });
