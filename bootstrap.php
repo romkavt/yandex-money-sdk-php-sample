@@ -15,7 +15,7 @@ $app = new \Slim\Slim(array(
 ));
 
 $app->get('/', function() use($app) { 
-    return $app->render("index.html");
+    return $app->render("index.html", array("lang" => "PHP"));
 }); 
 
 $app->post("/obtain-token/", function () use ($app) {

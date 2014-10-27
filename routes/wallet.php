@@ -99,7 +99,7 @@ $app->get(build_relative_url(REDIRECT_URI, $app->environment['SCRIPT_NAME']),
         REDIRECT_URI, CLIENT_SECRET);
 
     $script_name = $app->environment['SCRIPT_NAME'];
-    $home = str_repeat("../", count(explode('/', $script_name)));
+    $home = $app->environment['SCRIPT_NAME'] . "/";
 
     if(property_exists($result, "error")) {
         $script_name = $app->environment['SCRIPT_NAME'];
