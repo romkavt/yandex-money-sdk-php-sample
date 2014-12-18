@@ -12,7 +12,7 @@ if($request_payment->status == "success") {
     $is_process_error = false;
 }
 else {
-    echo "Response of request-payment is errorneous."
+    echo "Response of request-payment is erroneous."
         . sprintf(" The error label is %s", $request_payment->error);
     $is_process_error = true;
 }
